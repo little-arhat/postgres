@@ -30,5 +30,5 @@ extern ObjectAddress OperatorCreate(const char *operatorName,
 			   bool canHash);
 
 extern ObjectAddress makeOperatorDependencies(HeapTuple tuple, bool isUpdate);
-
+extern void OperatorUpd(Oid baseId, Oid commId, Oid negId, bool isDelete);
 #endif   /* PG_OPERATOR_FN_H */

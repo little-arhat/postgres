@@ -339,14 +339,29 @@ ValidateJoinEstimator(List *joinName)
 void
 RemoveOperatorById(Oid operOid)
 {
-	Relation	relation;
-	HeapTuple	tup;
+	Relation			relation;
+	HeapTuple			tup;
+	Form_pg_operator	op;
 
 	relation = heap_open(OperatorRelationId, RowExclusiveLock);
 
 	tup = SearchSysCache1(OPEROID, ObjectIdGetDatum(operOid));
+	op = (Form_pg_operator)	GETSTRUCT(tup);
 	if (!HeapTupleIsValid(tup)) /* should not happen */
 		elog(ERROR, "cache lookup failed for operator %u", operOid);
+
+	/*
+	 * Reset links on commutator and negator. Only do that if either
+	 * oprcom or oprnegate is set and given operator is	not self-commutator.
+	 * For self-commutator with	negator	prevent	meaningful updates of the
+	 * same tuple by sending InvalidOid.
+	 */
+	if (OidIsValid(op->oprnegate) ||
+		(OidIsValid(op->oprcom)	&& operOid != op->oprcom))
+		OperatorUpd(operOid,
+					operOid	== op->oprcom ?	InvalidOid : op->oprcom,
+					op->oprnegate,
+					true);
 
 	simple_heap_delete(relation, &tup->t_self);
 
