@@ -687,7 +687,10 @@ OperatorUpd(Oid baseId, Oid commId, Oid negId, bool isDelete)
 		if (HeapTupleIsValid(tup))
 		{
 			Form_pg_operator t = (Form_pg_operator) GETSTRUCT(tup);
-
+			/*
+			 * When deleting, check, whether other op field points to operator
+			 * being updated. Otherwise, check, whether field is not set.
+			 */
 			if (isDelete ? (t->oprcom == baseId || t->oprnegate == baseId)
 				: !OidIsValid(t->oprcom) || !OidIsValid(t->oprnegate))
 			{
@@ -729,10 +732,6 @@ OperatorUpd(Oid baseId, Oid commId, Oid negId, bool isDelete)
 	if (HeapTupleIsValid(tup))
 	{
 		Form_pg_operator t = (Form_pg_operator) GETSTRUCT(tup);
-		/*
-		 * When deleting, we check, whether other op field points to our
-		 * operator. Otherwise, check, whether field is not set.
-		 */
 		if (isDelete ? t->oprcom == baseId : !OidIsValid(t->oprcom))
 		{
 
