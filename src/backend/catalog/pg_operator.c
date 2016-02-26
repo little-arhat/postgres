@@ -642,10 +642,10 @@ get_other_operator(List *otherOp, Oid otherLeftTypeId, Oid otherRightTypeId,
  *	This solves a problem for users who need to insert two new operators
  *	which are the negator or commutator of each other.
  *
- *  If we are removing given operator, we'd like to reset links	on commutator
- *  and	negator, but only if they are point to given operator (i.e. haven't
- *  been somehow updated. This check is	mostly useless,	since we forbid
- *  overwriting	oprcom and oprnegate).
+ *	If we are removing given operator, we'd like to reset links on commutator
+ *	and negator, but only if they are point to given operator (i.e. haven't
+ *	been somehow updated. This check is mostly useless, since we forbid
+ *	overwriting oprcom and oprnegate).
  */
 void
 OperatorUpd(Oid baseId, Oid commId, Oid negId, bool isDelete)
