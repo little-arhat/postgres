@@ -656,6 +656,7 @@ OperatorUpd(Oid baseId, Oid commId, Oid negId, bool isDelete)
 	bool		nulls[Natts_pg_operator];
 	bool		replaces[Natts_pg_operator];
 	Datum		values[Natts_pg_operator];
+	Datum		target;
 
 	for (i = 0; i < Natts_pg_operator; ++i)
 	{
@@ -675,6 +676,11 @@ OperatorUpd(Oid baseId, Oid commId, Oid negId, bool isDelete)
 
 	pg_operator_desc = heap_open(OperatorRelationId, RowExclusiveLock);
 
+	/* When deleting, reset other operator field to InvalidOid, otherwise,
+     * set it to point to operator being updated
+	 */
+	target = (isDelete ? InvalidOid : ObjectIdGetDatum(baseId));
+
 	tup = SearchSysCacheCopy1(OPEROID, ObjectIdGetDatum(commId));
 
 	/*
@@ -691,22 +697,23 @@ OperatorUpd(Oid baseId, Oid commId, Oid negId, bool isDelete)
 			 * When deleting, check, whether other op field points to operator
 			 * being updated. Otherwise, check, whether field is not set.
 			 */
-			if (isDelete ? (t->oprcom == baseId || t->oprnegate == baseId)
-				: !OidIsValid(t->oprcom) || !OidIsValid(t->oprnegate))
+			bool shouldUpdateNegator = (isDelete ?
+										t->oprnegate == baseId :
+										!OidIsValid(t->oprnegate));
+			bool shouldUpdateCommutator = (isDelete ?
+										   t->oprcom == baseId :
+										   !OidIsValid(t->oprcom));
+			if (shouldUpdateNegator || shouldUpdateCommutator)
 			{
-				if (isDelete ? t->oprnegate == baseId : !OidIsValid(t->oprnegate))
+				if (shouldUpdateNegator)
 				{
-					values[Anum_pg_operator_oprnegate - 1] = (isDelete ?
-															  InvalidOid :
-															  ObjectIdGetDatum(baseId));
+					values[Anum_pg_operator_oprnegate - 1] = target;
 					replaces[Anum_pg_operator_oprnegate - 1] = true;
 				}
 
-				if (isDelete ? t->oprcom == baseId : !OidIsValid(t->oprcom))
+				if (shouldUpdateCommutator)
 				{
-					values[Anum_pg_operator_oprcom - 1] = (isDelete ?
-														   InvalidOid :
-														   ObjectIdGetDatum(baseId));
+					values[Anum_pg_operator_oprcom - 1] = target;
 					replaces[Anum_pg_operator_oprcom - 1] = true;
 				}
 
@@ -732,12 +739,11 @@ OperatorUpd(Oid baseId, Oid commId, Oid negId, bool isDelete)
 	if (HeapTupleIsValid(tup))
 	{
 		Form_pg_operator t = (Form_pg_operator) GETSTRUCT(tup);
+		/* As above, check whether other operator should be updated */
 		if (isDelete ? t->oprcom == baseId : !OidIsValid(t->oprcom))
 		{
 
-			values[Anum_pg_operator_oprcom - 1] = (isDelete ?
-												   InvalidOid :
-												   ObjectIdGetDatum(baseId));
+			values[Anum_pg_operator_oprcom - 1] = target;
 			replaces[Anum_pg_operator_oprcom - 1] =true;
 
 			tup = heap_modify_tuple(tup,
@@ -763,9 +769,7 @@ OperatorUpd(Oid baseId, Oid commId, Oid negId, bool isDelete)
 		Form_pg_operator t = (Form_pg_operator) GETSTRUCT(tup);
 		if (isDelete ? t->oprnegate == baseId : !OidIsValid(t->oprnegate))
 		{
-			values[Anum_pg_operator_oprnegate - 1] = (isDelete ?
-													  InvalidOid :
-													  ObjectIdGetDatum(baseId));
+			values[Anum_pg_operator_oprnegate - 1] = target;
 			replaces[Anum_pg_operator_oprnegate - 1] = true;
 
 			tup = heap_modify_tuple(tup,
