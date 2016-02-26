@@ -650,12 +650,12 @@ get_other_operator(List *otherOp, Oid otherLeftTypeId, Oid otherRightTypeId,
 void
 OperatorUpd(Oid baseId, Oid commId, Oid negId, bool isDelete)
 {
-	int				 i;
-	Relation		 pg_operator_desc;
-	HeapTuple		 tup;
-	bool			 nulls[Natts_pg_operator];
-	bool			 replaces[Natts_pg_operator];
-	Datum			 values[Natts_pg_operator];
+	int			i;
+	Relation	pg_operator_desc;
+	HeapTuple	tup;
+	bool		nulls[Natts_pg_operator];
+	bool		replaces[Natts_pg_operator];
+	Datum		values[Natts_pg_operator];
 
 	for (i = 0; i < Natts_pg_operator; ++i)
 	{
