@@ -15,15 +15,15 @@ CREATE OPERATOR !== (
 
 DROP OPERATOR !==(bigint, bigint);
 
-SELECT	ctid, oprcom
-FROM	pg_catalog.pg_operator fk
-WHERE	oprcom != 0 AND
-	NOT EXISTS(SELECT 1 FROM pg_catalog.pg_operator pk WHERE pk.oid = fk.oprcom);
+SELECT  ctid, oprcom
+FROM    pg_catalog.pg_operator fk
+WHERE   oprcom != 0 AND
+        NOT EXISTS(SELECT 1 FROM pg_catalog.pg_operator pk WHERE pk.oid = fk.oprcom);
 
-SELECT	ctid, oprnegate
-FROM	pg_catalog.pg_operator fk
-WHERE	oprnegate != 0 AND
-	NOT EXISTS(SELECT 1 FROM pg_catalog.pg_operator pk WHERE pk.oid = fk.oprnegate);
+SELECT  ctid, oprnegate
+FROM    pg_catalog.pg_operator fk
+WHERE   oprnegate != 0 AND
+        NOT EXISTS(SELECT 1 FROM pg_catalog.pg_operator pk WHERE pk.oid = fk.oprnegate);
 
 DROP OPERATOR ===(bigint, bigint);
 
@@ -43,14 +43,14 @@ CREATE OPERATOR !== (
 
 DROP OPERATOR !==(bigint, bigint);
 
-SELECT	ctid, oprcom
-FROM	pg_catalog.pg_operator fk
-WHERE	oprcom != 0 AND
-	NOT EXISTS(SELECT 1 FROM pg_catalog.pg_operator pk WHERE pk.oid = fk.oprcom);
+SELECT  ctid, oprcom
+FROM    pg_catalog.pg_operator fk
+WHERE   oprcom != 0 AND
+        NOT EXISTS(SELECT 1 FROM pg_catalog.pg_operator pk WHERE pk.oid = fk.oprcom);
 
-SELECT	ctid, oprnegate
-FROM	pg_catalog.pg_operator fk
-WHERE	oprnegate != 0 AND
-	NOT EXISTS(SELECT 1 FROM pg_catalog.pg_operator pk WHERE pk.oid = fk.oprnegate);
+SELECT  ctid, oprnegate
+FROM    pg_catalog.pg_operator fk
+WHERE   oprnegate != 0 AND
+        NOT EXISTS(SELECT 1 FROM pg_catalog.pg_operator pk WHERE pk.oid = fk.oprnegate);
 
 DROP OPERATOR ===(bigint, bigint);
