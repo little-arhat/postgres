@@ -346,20 +346,22 @@ RemoveOperatorById(Oid operOid)
 	relation = heap_open(OperatorRelationId, RowExclusiveLock);
 
 	tup = SearchSysCache1(OPEROID, ObjectIdGetDatum(operOid));
-	op = (Form_pg_operator)	GETSTRUCT(tup);
+	op = (Form_pg_operator) GETSTRUCT(tup);
 	if (!HeapTupleIsValid(tup)) /* should not happen */
 		elog(ERROR, "cache lookup failed for operator %u", operOid);
 
 	/*
 	 * Reset links on commutator and negator. Only do that if either
-	 * oprcom or oprnegate is set and given operator is	not self-commutator.
-	 * For self-commutator with	negator	prevent	meaningful updates of the
+	 * oprcom or oprnegate is set and given operator is not self-commutator.
+	 * For self-commutator with negator, prevent meaningful updates of the
 	 * same tuple by sending InvalidOid.
+	 * Since operator can't be its own negator, we don't need this check for
+	 * negator: if there is oprnegate, it should be updated.
 	 */
 	if (OidIsValid(op->oprnegate) ||
-		(OidIsValid(op->oprcom)	&& operOid != op->oprcom))
+		(OidIsValid(op->oprcom) && operOid != op->oprcom))
 		OperatorUpd(operOid,
-					operOid	== op->oprcom ?	InvalidOid : op->oprcom,
+					operOid == op->oprcom ? InvalidOid : op->oprcom,
 					op->oprnegate,
 					true);
 
