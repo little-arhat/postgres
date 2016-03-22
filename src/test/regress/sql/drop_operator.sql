@@ -27,21 +27,21 @@ WHERE   oprnegate != 0 AND
 
 DROP OPERATOR ===(bigint, bigint);
 
-CREATE OPERATOR === (
-        PROCEDURE = int8eq,
+CREATE OPERATOR <| (
+        PROCEDURE = int8lt,
         LEFTARG = bigint,
         RIGHTARG = bigint
 );
 
-CREATE OPERATOR !== (
-        PROCEDURE = int8ne,
+CREATE OPERATOR |> (
+        PROCEDURE = int8gt,
         LEFTARG = bigint,
         RIGHTARG = bigint,
-        NEGATOR = ===,
-        COMMUTATOR = ===
+        NEGATOR = <|,
+        COMMUTATOR = <|
 );
 
-DROP OPERATOR !==(bigint, bigint);
+DROP OPERATOR |>(bigint, bigint);
 
 SELECT  ctid, oprcom
 FROM    pg_catalog.pg_operator fk
@@ -53,4 +53,4 @@ FROM    pg_catalog.pg_operator fk
 WHERE   oprnegate != 0 AND
         NOT EXISTS(SELECT 1 FROM pg_catalog.pg_operator pk WHERE pk.oid = fk.oprnegate);
 
-DROP OPERATOR ===(bigint, bigint);
+DROP OPERATOR <|(bigint, bigint);
